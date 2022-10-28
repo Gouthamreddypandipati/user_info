@@ -93,7 +93,7 @@ router.post('/login',(req,res)=>{
     })
 })
 
-router.get('/get_all_users',async (req,res)=>{
+router.get('/get_all_users',auth_user,async (req,res)=>{
     try{
         const users=await User.find()
         res.json(users)
@@ -103,7 +103,7 @@ router.get('/get_all_users',async (req,res)=>{
     }
 })
 
-router.post('/get_user',async (req,res)=>{
+router.post('/get_user',auth_user,async (req,res)=>{
     try{
         const user=await User.findOne({email:req.body.email})
         if(user){
@@ -119,7 +119,7 @@ router.post('/get_user',async (req,res)=>{
 })
 
 //update info
-router.patch('/update_info',async (req,res)=>{
+router.patch('/update_info',auth_user,async (req,res)=>{
     try{
         const email=req.query.email;
         console.log(email)
@@ -138,7 +138,7 @@ router.patch('/update_info',async (req,res)=>{
     }
 })
 
-router.patch('/reset_password',(req,res)=>{
+router.patch('/reset_password',auth_user,(req,res)=>{
     User.findOne({email:req.body.email})
     .exec()
     .then(user =>{
@@ -179,6 +179,10 @@ router.patch('/reset_password',(req,res)=>{
 
     })
 
+})
+
+router.get('/auth',auth_user,(req,res)=>{
+    res.json({message:"your are authorized user to access this application"})
 })
     
 module.exports=router
