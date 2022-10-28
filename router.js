@@ -6,7 +6,33 @@ const router=express.Router()
 const mongoose=require('mongoose')
 const User=require('./models_reg')
 const jwt=require('jsonwebtoken')
-router.post('/register',(req,res)=>{
+const multer=require('multer')
+
+
+const storage=multer.diskStorage({
+    destination:function(req,file,cb){
+        cb(null,'profile_imgs/')
+    },
+    filename: function(req,file,cb){
+        cb(null,file.originalname)
+    }
+})
+// file filter
+const fileFilter=(req,file,cb)=>{
+    if (file.mimetype==='image/jpeg' || file.mimetype==='image/png'){
+        // accepting the file 
+        cb(null,true)
+    }
+    else{
+        // regecting files
+        cb(null,false)
+    }
+}
+// it gives (req,file,cb) to dict objects given
+const upload=multer({storage:storage,limits:{fileSize:1024*1024*5},fileFilter:fileFilter})
+
+router.post('/register',upload.single('profile_img'),(req,res)=>{
+    console.log(req.file)
     User.find({email:req.body.email})
     .exec()
     .then(user =>{
@@ -27,7 +53,8 @@ router.post('/register',(req,res)=>{
                         name:req.body.name,
                         email:req.body.email,
                         mobile:req.body.mobile,
-                        password: hash
+                        password: hash,
+                        profile_img:req.file.path
                 
                     })
                     user.save().then(result=>{
@@ -93,9 +120,9 @@ router.post('/login',(req,res)=>{
     })
 })
 
-router.get('/get_all_users',auth_user,async (req,res)=>{
+router.get('/get_all_users',async (req,res)=>{
     try{
-        const users=await User.find()
+        const users=await User.find().select("name email mobile profile_img")
         res.json(users)
     }
     catch(err){

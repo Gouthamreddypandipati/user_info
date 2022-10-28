@@ -10,6 +10,8 @@ const con=mongoos.connection
 con.on('open',()=>{
     console.log('connected')
 })
+// make profile_img folder publicly access to all
+app.use(express.static('profile_imgs'))
 // use json
 app.use(express.json())
 // getting the routing file
